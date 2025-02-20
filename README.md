@@ -14,3 +14,7 @@ especifique que la instancia esté en la misma VPC
 5:
 ![alt text](errores\error5.png)
 carga pero da roolback
+
+El infrastructuraoriginal.yaml es un archivo donde me permitio subir el archi e intentar crear el stack pero dio rollback,
+
+El infraestrucuta.yaml es un archivo corregido por ia intentanto ver si se podia correr, pero aun así falló en el intento.
