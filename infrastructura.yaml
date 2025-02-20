@@ -1,13 +1,68 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: ---
-Metadata: 
+Description: "Plantilla para desplegar un bucket S3, un grupo de seguridad y una instancia EC2"
 
 Parameters: 
+  pBucketName:
+    Type: String
+    Description: "Nombre del bucket S3"
 
-Mappings: 
+  pInstanceType:
+    Type: String
+    Description: "Tipo de instancia EC2"
+    Default: "t2.micro"
 
-Conditions: 
+  pAMIID:
+    Type: AWS::EC2::Image::Id
+    Description: "ID de la AMI para la instancia EC2"
+    Default: "ami-0fc5d935ebf8bc3bc"
+  
+  pVpcId:
+    Type: AWS::EC2::VPC::Id
+    Description: "ID de la VPC donde se creará el grupo de seguridad"
+
+  pCidrIp:
+    Type: String
+    Default: "0.0.0.0/0"
+    Description: "Bloque de red con acceso al ALB"
 
 Resources: 
+  #Bucket S3 con versionamiento activado
+  s3Bucket:
+    Type: AWS::S3::Bucket
+    Properties: 
+      AccessControl: Private
+      BucketName: 
+        Ref: pBucketName
+      VersioningConfiguration: 
+        Status: Enabled
+      Tags:
+        - Key: key
+          Value: value
 
-Outputs:
+  # Grupo de seguridad que permita tráfico HTTP (puerto 80)
+  SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "Permite tráfico HTTP en le puerto 80"
+      VpcId: 
+        Ref: pVpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 
+            Ref: pCidrIp
+
+  # Instancia EC2 con el grupo de seguridad
+  EC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: 
+        Ref: pAMIID
+      InstanceType: 
+        Ref: pInstanceType
+      SecurityGroupIds:
+        - Ref: SecurityGroup
+      Tags:
+        - Key: key
+          Value: value
