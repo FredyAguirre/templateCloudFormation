@@ -5,6 +5,7 @@ Parameters:
   pBucketName:
     Type: String
     Description: "Nombre del bucket S3"
+    Default: "mi-bucket-default"
 
   pInstanceType:
     Type: String
@@ -25,7 +26,25 @@ Parameters:
     Default: "0.0.0.0/0"
     Description: "Bloque de red con acceso al ALB"
 
+  pCidrBlock:
+    Type: String
+    Default: "10.0.0.0/16"
+    Description: "Rango de direcciones IP para la VPC"
+
 Resources: 
+
+  # Crear la VPC
+  MyVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock:
+        Ref: pCidrBlock
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: "MyVPC"
+
   #Bucket S3 con versionamiento activado
   s3Bucket:
     Type: AWS::S3::Bucket
