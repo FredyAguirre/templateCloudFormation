@@ -58,7 +58,7 @@ Resources:
   SecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: "Permite tráfico HTTP en le puerto 80"
+      GroupDescription: "Permite trafico HTTP en el puerto 80"
       VpcId: 
         Ref: MyVPC
       SecurityGroupIngress:
