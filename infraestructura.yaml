@@ -1,0 +1,89 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: "Plantilla para desplegar un bucket S3, un grupo de seguridad y una instancia EC2"
+
+Parameters: 
+  pBucketName:
+    Type: String
+    Description: "Nombre del bucket S3"
+    Default: "mi-bucket-default"
+
+  pInstanceType:
+    Type: String
+    Description: "Tipo de instancia EC2"
+    Default: "t2.micro"
+
+  pAMIID:
+    Type: AWS::EC2::Image::Id
+    Description: "ID de la AMI para la instancia EC2"
+    Default: "ami-0fc5d935ebf8bc3bc"
+  
+  pCidrIp:
+    Type: String
+    Default: "0.0.0.0/0"
+    Description: "Bloque de red con acceso al ALB"
+
+  pCidrBlock:
+    Type: String
+    Default: "10.0.0.0/16"
+    Description: "Rango de direcciones IP para la VPC"
+
+Resources: 
+
+  # Crear la VPC
+  MyVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref pCidrBlock
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: "MyVPC"
+
+  # Crear una Subred dentro de la VPC
+  MySubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref MyVPC
+      CidrBlock: "10.0.1.0/24"  # Subred dentro de la VPC
+      MapPublicIpOnLaunch: true  # Para que las instancias obtengan IP pública
+      AvailabilityZone: !Select 
+        - 0
+        - !GetAZs ""
+
+  # Bucket S3 con versionamiento activado
+  s3Bucket:
+    Type: AWS::S3::Bucket
+    Properties: 
+      AccessControl: Private
+      BucketName: !Ref pBucketName
+      VersioningConfiguration: 
+        Status: Enabled
+      Tags:
+        - Key: key
+          Value: value
+
+  # Grupo de seguridad que permite tráfico HTTP (puerto 80)
+  SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "Permite trafico HTTP en el puerto 80"
+      VpcId: !Ref MyVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: !Ref pCidrIp
+
+  # Instancia EC2 con la subred correcta
+  EC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref pAMIID
+      InstanceType: !Ref pInstanceType
+      SecurityGroupIds:
+        - !Ref SecurityGroup
+      SubnetId: !Ref MySubnet  # Se asegura que la instancia esté en la misma VPC
+      Tags:
+        - Key: key
+          Value: value
