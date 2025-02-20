@@ -17,10 +17,6 @@ Parameters:
     Description: "ID de la AMI para la instancia EC2"
     Default: "ami-0fc5d935ebf8bc3bc"
   
-  pVpcId:
-    Type: AWS::EC2::VPC::Id
-    Description: "ID de la VPC donde se creará el grupo de seguridad"
-
   pCidrIp:
     Type: String
     Default: "0.0.0.0/0"
@@ -64,7 +60,7 @@ Resources:
     Properties:
       GroupDescription: "Permite tráfico HTTP en le puerto 80"
       VpcId: 
-        Ref: pVpcId
+        Ref: MyVPC
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 80
